@@ -10,7 +10,7 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,

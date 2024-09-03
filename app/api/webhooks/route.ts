@@ -2,7 +2,14 @@ import Customer from "@/lib/models/Customer";
 import Order from "@/lib/models/Order";
 import { connectToDB } from "@/lib/mongoDB";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs"
 import { stripe } from "@/lib/stripe";
+// import Stripe from 'stripe'
+
+// export const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY!,{
+//   typescript: true,
+// });
+
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -48,7 +55,8 @@ export const POST = async (req: NextRequest) => {
         }
       })
 
-      await connectToDB()
+      //await connectToDB()
+
 
       const newOrder = new Order({
         customerClerkId: customerInfo.clerkId,
@@ -58,9 +66,15 @@ export const POST = async (req: NextRequest) => {
         totalAmount: session.amount_total ? session.amount_total / 100 : 0,
       })
 
-      await newOrder.save()
+      newOrder.save()
+
+      //await newOrder.save()
+
+      console.log(" new order ", newOrder) ;
 
       let customer = await Customer.findOne({ clerkId: customerInfo.clerkId })
+
+      console.log("[webhooks_POST]", customer) ;
 
       if (customer) {
         customer.orders.push(newOrder._id)
@@ -73,7 +87,7 @@ export const POST = async (req: NextRequest) => {
 
       await customer.save()
     }
-
+    
     return new NextResponse("Order created", { status: 200 })
   } catch (err) {
     console.log("[webhooks_POST]", err)
